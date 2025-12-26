@@ -1,13 +1,38 @@
-//TIP To <b>Run</b> code, press <shortcut actionId="Run"/> or
-// click the <icon src="AllIcons.Actions.Execute"/> icon in the gutter.
-void main() {
-    //TIP Press <shortcut actionId="ShowIntentionActions"/> with your caret at the highlighted text
-    // to see how IntelliJ IDEA suggests fixing it.
-    IO.println(String.format("Hello and welcome!"));
+import model.*;
+import util.CSVUtil;
 
-    for (int i = 1; i <= 5; i++) {
-        //TIP Press <shortcut actionId="Debug"/> to start debugging your code. We have set one <icon src="AllIcons.Debugger.Db_set_breakpoint"/> breakpoint
-        // for you, but you can always add more by pressing <shortcut actionId="ToggleLineBreakpoint"/>.
-        IO.println("i = " + i);
+import java.util.Date;
+import java.util.List;
+
+public class Main {
+    public static void main(String[] args) {
+        // Load data first
+        List<Patient> patients = CSVUtil.loadPatients();
+        List<Referral> loadedReferrals = CSVUtil.loadReferrals();
+
+        // Test Singleton
+        ReferralManager manager1 = ReferralManager.getInstance();
+        ReferralManager manager2 = ReferralManager.getInstance();
+
+        System.out.println("\nSingleton Test:");
+        System.out.println("Same instance? " + (manager1 == manager2)); // Should print true
+
+        // Create a test referral
+        if (!patients.isEmpty()) {
+            Patient p = patients.get(0);
+            Referral testReferral = new Referral(
+                    "R999", p.getId(), "GP001", "F002",
+                    "Suspected cardiac issue - urgent review needed", "High", new Date()
+            );
+
+            manager1.createReferral(testReferral);
+
+            System.out.println("Total referrals managed: " + manager1.getReferralCount());
+        }
+
+        // Load existing referrals into manager if you want
+        for (Referral r : loadedReferrals) {
+            manager1.createReferral(r);
+        }
     }
 }
