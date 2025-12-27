@@ -30,6 +30,8 @@ public class MainFrame extends JFrame {
 
         tabbedPane.addTab("Patients", createPatientsPanel());
         tabbedPane.addTab("Appointments", createAppointmentsPanel());
+        tabbedPane.addTab("Prescriptions", createPrescriptionsPanel());
+
 
         add(tabbedPane);
     }
@@ -185,6 +187,59 @@ public class MainFrame extends JFrame {
 
         JTable table = new JTable(model);
         panel.add(new JScrollPane(table), BorderLayout.CENTER);
+        return panel;
+    }
+
+    //  PRESCRIPTIONS TAB
+    private JPanel createPrescriptionsPanel() {
+        JPanel panel = new JPanel(new BorderLayout(10, 10));
+        panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+
+        String[] columns = {"ID", "Patient ID", "Clinician ID", "Medication", "Dosage", "Pharmacy", "Status"};
+        DefaultTableModel model = new DefaultTableModel(columns, 0);
+
+        for (Prescription p : prescriptions) {
+            model.addRow(new Object[]{
+                    p.getId(), p.getPatientId(), p.getClinicianId(),
+                    p.getMedication(), p.getDosage(), p.getPharmacy(), p.getCollectionStatus()
+            });
+        }
+
+        JTable table = new JTable(model);
+        JScrollPane scrollPane = new JScrollPane(table);
+
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        JButton addButton = new JButton("Create New Prescription");
+        addButton.setFont(new Font("Arial", Font.BOLD, 14));
+
+        addButton.addActionListener(e -> {
+            String patientId = JOptionPane.showInputDialog(this, "Patient ID:");
+            String clinicianId = JOptionPane.showInputDialog(this, "Clinician ID:");
+            String medication = JOptionPane.showInputDialog(this, "Medication:");
+            String dosage = JOptionPane.showInputDialog(this, "Dosage:");
+            String pharmacy = JOptionPane.showInputDialog(this, "Pharmacy:");
+
+            if (patientId != null && medication != null && !patientId.trim().isEmpty()) {
+                String newId = "PR" + (prescriptions.size() + 100);
+                Prescription newPres = new Prescription(newId, patientId.trim(),
+                        clinicianId != null ? clinicianId.trim() : "GP001",
+                        medication.trim(), dosage != null ? dosage.trim() : "",
+                        pharmacy != null ? pharmacy.trim() : "Local", "Pending");
+
+                prescriptions.add(newPres);
+                model.addRow(new Object[]{
+                        newPres.getId(), newPres.getPatientId(), newPres.getClinicianId(),
+                        newPres.getMedication(), newPres.getDosage(), newPres.getPharmacy(), newPres.getCollectionStatus()
+                });
+
+                JOptionPane.showMessageDialog(this, "Prescription " + newId + " created!");
+            }
+        });
+
+        buttonPanel.add(addButton);
+        panel.add(buttonPanel, BorderLayout.NORTH);
+        panel.add(scrollPane, BorderLayout.CENTER);
+
         return panel;
     }
 
