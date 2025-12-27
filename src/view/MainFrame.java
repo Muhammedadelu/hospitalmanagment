@@ -31,7 +31,7 @@ public class MainFrame extends JFrame {
         tabbedPane.addTab("Patients", createPatientsPanel());
         tabbedPane.addTab("Appointments", createAppointmentsPanel());
         tabbedPane.addTab("Prescriptions", createPrescriptionsPanel());
-
+        tabbedPane.addTab("Referrals", createReferralsPanel());
 
         add(tabbedPane);
     }
@@ -243,7 +243,64 @@ public class MainFrame extends JFrame {
         return panel;
     }
 
+    //  REFERRALS TAB
+    private JPanel createReferralsPanel() {
+        JPanel panel = new JPanel(new BorderLayout(10, 10));
+        panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
+        String[] columns = {"ID", "Patient ID", "From Clinician", "To Facility", "Summary", "Urgency", "Date"};
+        DefaultTableModel model = new DefaultTableModel(columns, 0);
+
+        for (Referral r : referrals) {
+            model.addRow(new Object[]{
+                    r.getId(), r.getPatientId(), r.getFromClinicianId(),
+                    r.getToFacilityId(), r.getSummary(), r.getUrgency(), r.getDate()
+            });
+        }
+
+        JTable table = new JTable(model);
+        JScrollPane scrollPane = new JScrollPane(table);
+
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        JButton newReferralButton = new JButton("Create New Referral (Singleton)");
+        newReferralButton.setFont(new Font("Arial", Font.BOLD, 14));
+
+        newReferralButton.addActionListener(e -> {
+            String patientId = JOptionPane.showInputDialog(this, "Patient ID:");
+            String fromClinician = JOptionPane.showInputDialog(this, "From Clinician ID:");
+            String toFacility = JOptionPane.showInputDialog(this, "To Facility ID:");
+            String summary = JOptionPane.showInputDialog(this, "Clinical Summary:");
+            String urgency = JOptionPane.showInputDialog(this, "Urgency (Low/Medium/High):");
+
+            if (patientId != null && summary != null && !patientId.trim().isEmpty()) {
+                String newId = "R" + (referrals.size() + 100);
+                Referral newReferral = new Referral(newId, patientId.trim(),
+                        fromClinician != null ? fromClinician.trim() : "GP001",
+                        toFacility != null ? toFacility.trim() : "Hospital",
+                        summary.trim(),
+                        urgency != null ? urgency.trim() : "Medium",
+                        new Date());
+
+                ReferralManager.getInstance().createReferral(newReferral);
+
+                referrals.add(newReferral);
+                model.addRow(new Object[]{
+                        newReferral.getId(), newReferral.getPatientId(), newReferral.getFromClinicianId(),
+                        newReferral.getToFacilityId(), newReferral.getSummary(),
+                        newReferral.getUrgency(), newReferral.getDate()
+                });
+
+                JOptionPane.showMessageDialog(this,
+                        "Referral " + newId + " created!\nCheck referrals_output.txt");
+            }
+        });
+
+        buttonPanel.add(newReferralButton);
+        panel.add(buttonPanel, BorderLayout.NORTH);
+        panel.add(scrollPane, BorderLayout.CENTER);
+
+        return panel;
+    }
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
