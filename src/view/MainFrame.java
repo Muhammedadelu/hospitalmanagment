@@ -29,7 +29,7 @@ public class MainFrame extends JFrame {
         loadAllData();
 
         tabbedPane.addTab("Patients", createPatientsPanel());
-
+        tabbedPane.addTab("Appointments", createAppointmentsPanel());
 
         add(tabbedPane);
     }
@@ -165,6 +165,26 @@ public class MainFrame extends JFrame {
 
         panel.add(buttonPanel, BorderLayout.NORTH);
         panel.add(scrollPane, BorderLayout.CENTER);
+        return panel;
+    }
+
+    // APPOINTMENTS TAB
+    private JPanel createAppointmentsPanel() {
+        JPanel panel = new JPanel(new BorderLayout(10, 10));
+        panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+
+        String[] columns = {"ID", "Patient ID", "Clinician ID", "Date", "Time", "Status", "Reason"};
+        DefaultTableModel model = new DefaultTableModel(columns, 0);
+
+        for (Appointment a : appointments) {
+            model.addRow(new Object[]{
+                    a.getId(), a.getPatientId(), a.getClinicianId(),
+                    a.getDate(), a.getTime(), a.getStatus(), a.getReason()
+            });
+        }
+
+        JTable table = new JTable(model);
+        panel.add(new JScrollPane(table), BorderLayout.CENTER);
         return panel;
     }
 
