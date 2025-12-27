@@ -1,38 +1,23 @@
-import model.*;
-import util.CSVUtil;
+import view.MainFrame;
 
-import java.util.Date;
-import java.util.List;
+import javax.swing.SwingUtilities;
 
 public class Main {
     public static void main(String[] args) {
-        // Load data first
-        List<Patient> patients = CSVUtil.loadPatients();
-        List<Referral> loadedReferrals = CSVUtil.loadReferrals();
 
-        // Test Singleton
-        ReferralManager manager1 = ReferralManager.getInstance();
-        ReferralManager manager2 = ReferralManager.getInstance();
+        SwingUtilities.invokeLater(() -> {
+            try {
 
-        System.out.println("\nSingleton Test:");
-        System.out.println("Same instance? " + (manager1 == manager2)); // Should print true
+                javax.swing.UIManager.setLookAndFeel(
+                        javax.swing.UIManager.getSystemLookAndFeelClassName()
+                );
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
 
-        // Create a test referral
-        if (!patients.isEmpty()) {
-            Patient p = patients.get(0);
-            Referral testReferral = new Referral(
-                    "R999", p.getId(), "GP001", "F002",
-                    "Suspected cardiac issue - urgent review needed", "High", new Date()
-            );
-
-            manager1.createReferral(testReferral);
-
-            System.out.println("Total referrals managed: " + manager1.getReferralCount());
-        }
-
-        // Load existing referrals into manager if you want
-        for (Referral r : loadedReferrals) {
-            manager1.createReferral(r);
-        }
+            // Create and show the main window
+            MainFrame mainFrame = new MainFrame();
+            mainFrame.setVisible(true);
+        });
     }
 }
